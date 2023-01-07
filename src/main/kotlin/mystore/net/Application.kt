@@ -19,7 +19,7 @@ import mystore.net.Service.UserServiceImpl
 
 
 fun main() {
-    embeddedServer(Netty, port = Server_port, host = "$Server_ipAddress"){
+    embeddedServer(Netty, port = 8080, host = "192.168.50.39"){
         DatabaseFactory.init()
 
     install(ContentNegotiation) {

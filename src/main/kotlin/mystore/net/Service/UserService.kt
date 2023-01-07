@@ -7,4 +7,6 @@ interface UserService {
 
     suspend fun findUserByEmail(email:String):Users?
 
+    suspend fun findUserphone(phone:String):Users?
+
 }

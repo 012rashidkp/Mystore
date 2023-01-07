@@ -7,7 +7,7 @@ data class Users(
     val phone:String,
     val city:String,
     val createdAt:String,
-    val is_superuser:Boolean=false,
+    val is_superuser:Boolean,
     var authtoken:String?=null
 
 

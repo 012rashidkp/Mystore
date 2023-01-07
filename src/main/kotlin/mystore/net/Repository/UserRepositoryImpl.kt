@@ -10,7 +10,7 @@ class UserRepositoryImpl(private val userService: UserService) : UserRepository 
        return if (isEmailexist(params.email)){
             BaseResponse.ErrorResponse(error = true, message = "This Email Already Exist")
         }
-        else if (isPhoneExist(params.phone)){
+       else if (isPhoneExist(params.phone)){
             BaseResponse.ErrorResponse(error = true, message = "This phone Number Already Exist")
        }
        else{
@@ -35,6 +35,6 @@ class UserRepositoryImpl(private val userService: UserService) : UserRepository 
         return userService.findUserByEmail(email)!=null
     }
 private suspend fun isPhoneExist(phone:String):Boolean{
-   return userService.findUserByEmail(phone)!=null
+   return userService.findUserphone(phone)!=null
 }
 }

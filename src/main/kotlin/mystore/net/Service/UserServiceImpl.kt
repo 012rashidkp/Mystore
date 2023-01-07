@@ -33,6 +33,15 @@ class UserServiceImpl : UserService {
         }
         return user
     }
+
+    override suspend fun findUserphone(phone: String): Users? {
+        val user= dbQuery {
+            UserTable.select { UserTable.phone.eq(phone) }
+                .map { RowToUser(it) }.singleOrNull()
+        }
+        return user
+    }
+
     private fun RowToUser(row:ResultRow?):Users?{
         return if (row==null)null
         else Users(
