@@ -1,4 +1,4 @@
-package mystore.net.Service
+package mystore.net.Requests
 
 data class CreateuserParams(
     val username:String,

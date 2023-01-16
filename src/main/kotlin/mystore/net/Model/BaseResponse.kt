@@ -1,11 +1,15 @@
 package mystore.net.Model
 
 import io.ktor.http.*
-import io.netty.handler.codec.http.HttpResponse
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 sealed class BaseResponse<T>(
-   val statuscode:HttpStatusCode=HttpStatusCode.OK
+    val statuscode: Int =HttpStatusCode.OK.value,
+    val status_description:String=HttpStatusCode.OK.description,
+    val current_time: String? ="${LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss a"))}"
     ){
+
     data class SuccessResponse<T>(
         val error:Boolean=false,
         val message:String?=null,
@@ -16,7 +20,8 @@ sealed class BaseResponse<T>(
         val city:String,
         val createdAt:String,
         val is_superuser:Boolean,
-        var authtoken:String?=null
+        var authtoken:String?=null,
+
 
 
             ):BaseResponse<T>()

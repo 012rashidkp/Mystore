@@ -2,9 +2,11 @@ package mystore.net.Service
 
 import mystore.net.Database.DatabaseFactory.dbQuery
 import mystore.net.Database.UserTable
+import mystore.net.Database.touser
 import mystore.net.Model.Users
+import mystore.net.Requests.CreateuserParams
 import mystore.net.Security.hash
-import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.statements.InsertStatement
@@ -23,13 +25,20 @@ class UserServiceImpl : UserService {
 
             }
         }
-        return RowToUser(statement?.resultedValues?.get(0))
+       // return RowToUser(statement?.resultedValues?.get(0))
+        return statement?.resultedValues?.get(0).touser()
+    }
+
+    override suspend fun Loginuser(email: String, password: String): Users? {
+        val hashedpassword= hash(password)
+        val useRow= dbQuery { UserTable.select { UserTable.email eq email and (UserTable.password eq hashedpassword)}.firstOrNull()  }
+       return useRow.touser()
     }
 
     override suspend fun findUserByEmail(email: String): Users? {
         val user= dbQuery {
             UserTable.select { UserTable.email.eq(email) }
-                .map { RowToUser(it) }.singleOrNull()
+                .map { it.touser() }.singleOrNull()
         }
         return user
     }
@@ -37,23 +46,16 @@ class UserServiceImpl : UserService {
     override suspend fun findUserphone(phone: String): Users? {
         val user= dbQuery {
             UserTable.select { UserTable.phone.eq(phone) }
-                .map { RowToUser(it) }.singleOrNull()
+                .map { it.touser() }.singleOrNull()
         }
         return user
     }
 
-    private fun RowToUser(row:ResultRow?):Users?{
-        return if (row==null)null
-        else Users(
-            userid = row[UserTable.userid],
-            username = row[UserTable.username],
-            email = row[UserTable.email],
-            phone = row[UserTable.phone],
-            city = row[UserTable.city],
-            createdAt = row[UserTable.createdAt].toString(),
-            is_superuser = row[UserTable.is_superuser]
-
-
-        )
-    }
 }
+
+//fun checkPhoneNumberExists(phoneNumber: String): Boolean {
+//    val result = transaction {
+//        PhoneNumber.find { PhoneNumbers.number eq phoneNumber }.firstOrNull()
+//    }
+//    return result != null
+//}
