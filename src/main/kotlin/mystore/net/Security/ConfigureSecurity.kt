@@ -5,7 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
-import mystore.net.Model.BaseResponse
+import mystore.net.Model.AuthResponse
 
 fun Application.configureSecurity(){
     JwtConfig.initialize("mystore")
@@ -21,7 +21,7 @@ fun Application.configureSecurity(){
                 }
             }
             challenge { defaultScheme, realm ->
-                call.respond(BaseResponse.ErrorResponse(error = true, message = "invalid token",exception = null))
+                call.respond(AuthResponse.ErrorResponse(error = true, message = "invalid token",exception = null))
 
             }
         }

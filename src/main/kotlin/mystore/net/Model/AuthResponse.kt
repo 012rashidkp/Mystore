@@ -4,7 +4,7 @@ import io.ktor.http.*
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-sealed class BaseResponse<T>(
+sealed class AuthResponse<T>(
     val statuscode: Int =HttpStatusCode.OK.value,
     val status_description:String=HttpStatusCode.OK.description,
     val current_time: String? ="${LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss a"))}"
@@ -24,11 +24,11 @@ sealed class BaseResponse<T>(
 
 
 
-            ):BaseResponse<T>()
+            ):AuthResponse<T>()
     data class ErrorResponse<T>(
         val error: Boolean=true,
         val message: String?=null,
         val exception:T?=null
 
-    ):BaseResponse<T>()
+    ):AuthResponse<T>()
 }

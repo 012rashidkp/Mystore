@@ -13,7 +13,7 @@ object UserTable:Table("users") {
     val city=varchar("city",250)
     val password=text("password")
     val createdAt = datetime("created_at").clientDefault { LocalDateTime.now() }
-    val is_superuser=bool("is_superuser")
+    val is_superuser=bool("is_superuser").clientDefault { false }
 
     override val primaryKey=PrimaryKey(userid)
 

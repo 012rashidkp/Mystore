@@ -11,7 +11,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.statements.InsertStatement
 
-class UserServiceImpl : UserService {
+class AuthServiceImpl : AuthService {
     override suspend fun Createuser(params: CreateuserParams): Users? {
         var statement:InsertStatement<Number>?=null
         dbQuery{
@@ -21,8 +21,8 @@ class UserServiceImpl : UserService {
                 it[phone]=params.phone
                 it[city]=params.city
                 it[password]=hash(params.password)
-                it[is_superuser]=params.is_superuser==false
-
+                it[is_superuser]=params.is_superuser
+              //  it[is_superuser]=params.is_superuser.or(true)
             }
         }
        // return RowToUser(statement?.resultedValues?.get(0))
