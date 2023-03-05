@@ -14,6 +14,10 @@ object DatabaseFactory {
         Database.connect(hikari())
        transaction {
            SchemaUtils.create(UserTable)
+           SchemaUtils.create(BannerTable)
+           SchemaUtils.create(CategoryTable)
+           SchemaUtils.create(ProductTable)
+
        }
     }
     fun hikari():HikariDataSource{

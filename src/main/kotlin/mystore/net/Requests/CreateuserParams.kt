@@ -6,5 +6,5 @@ data class CreateuserParams(
     val phone:String,
     val city:String,
     val password:String,
-    val is_superuser:Boolean
+    val is_superuser:Boolean=false
 )

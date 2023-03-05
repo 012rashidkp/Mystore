@@ -5,41 +5,78 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import mystore.net.Repository.AuthRepository
+import mystore.net.Requests.CreateSuperUserParams
 import mystore.net.Requests.CreateuserParams
 import mystore.net.Requests.UserLoginParams
+
 
 fun Application.authroutes(repository: AuthRepository){
     routing {
         route("/auth"){
             post("/registeruser") {
-                val params=call.receive<CreateuserParams>()
-                val result=repository.Registeruser(params)
+              val parameters=call.receiveParameters()
+                val userparams=CreateuserParams(
+                    parameters["username"]!!,
+                    parameters["email"]!!,
+                    parameters["phone"]!!,
+                    parameters["city"]!!,
+                    parameters["password"]!!,
 
-                call.respond(result)
+
+                )
+           val registerresult=repository.Registeruser(userparams)
+            call.respond(registerresult)
+
+
+
             }
+            post("/createsuperuser"){
+                val superparams=call.receiveParameters()
+                val superuserparams=CreateSuperUserParams(
+                    superparams["email"]!!,
+                    superparams["password"]!!,
+                    )
+                val createresult=repository.Createsuperuser(superuserparams)
+                call.respond(createresult)
+
+            }
+
+
+
             post("/login"){
-                val params = call.receive<UserLoginParams>()
-                val result = repository.Loginuser(params)
-                call.respond(result)
+val userparams=call.receiveParameters()
+   val loginparams=UserLoginParams(
+       userparams["email"]!!,
+       userparams["password"]!!
+   )
+  val loginresult=repository.Loginuser(loginparams)
+  call.respond(loginresult)
+
+
+//                val params = call.receive<UserLoginParams>()
+//                val result = repository.Loginuser(params)
+//                call.respond(result)
             }
+            post("/loginsuperuser"){
+                val userparams=call.receiveParameters()
+                val loginparams=UserLoginParams(
+                    userparams["email"]!!,
+                    userparams["password"]!!
+                )
+                val loginresult=repository.Loginsuperuser(loginparams)
+                call.respond(loginresult)
+            }
+
         }
     }
 
 }
 
 
-//post("/upload") {
-//    val multipart = call.receiveMultipart()
-//    multipart.forEachPart { part ->
-//        when (part) {
-//            is PartData.FileItem -> {
-//                val ext = File(part.originalFileName).extension
-//                val file = File("$UPLOAD_DIR/${UUID.randomUUID()}.$ext")
-//                part.streamProvider().use { its -> file.outputStream().buffered().use { os -> its.copyTo(os) } }
-//                // save file path to table
-//            }
-//            else -> part.dispose()
-//        }
-//    }
-//    call.respondText("File upload successful")
-//}
+
+
+
+
+
+
+

@@ -6,7 +6,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.response.*
-import mystore.net.Model.AuthResponse
+import mystore.net.Response.AuthResponse
 
 
 fun Application.configureStatusPages() {
@@ -17,7 +17,7 @@ fun Application.configureStatusPages() {
                     is MissingKotlinParameterException -> AuthResponse.ErrorResponse(error = true, message = "Missing attribute `${cause.parameter.name}`",exception = null)
                     else -> AuthResponse.ErrorResponse(error = true,message = cause.message)
                 }
-                call.respond(error)
+                call.respond(error.statuscode)
 
             }
             else {
@@ -26,9 +26,6 @@ fun Application.configureStatusPages() {
 
         }
     }
-
-
-
 
 }
 

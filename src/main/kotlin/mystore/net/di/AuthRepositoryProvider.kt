@@ -4,6 +4,6 @@ import mystore.net.Repository.AuthRepository
 import mystore.net.Repository.AuthRepositoryImpl
 import mystore.net.Service.AuthServiceImpl
 
-object RepositoryProvider {
+object AuthRepositoryProvider {
     fun provideAuthRepository(): AuthRepository = AuthRepositoryImpl(AuthServiceImpl())
 }

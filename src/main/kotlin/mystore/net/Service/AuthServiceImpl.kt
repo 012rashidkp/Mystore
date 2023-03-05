@@ -4,6 +4,7 @@ import mystore.net.Database.DatabaseFactory.dbQuery
 import mystore.net.Database.UserTable
 import mystore.net.Database.touser
 import mystore.net.Model.Users
+import mystore.net.Requests.CreateSuperUserParams
 import mystore.net.Requests.CreateuserParams
 import mystore.net.Security.hash
 import org.jetbrains.exposed.sql.and
@@ -22,10 +23,10 @@ class AuthServiceImpl : AuthService {
                 it[city]=params.city
                 it[password]=hash(params.password)
                 it[is_superuser]=params.is_superuser
-              //  it[is_superuser]=params.is_superuser.or(true)
+
             }
         }
-       // return RowToUser(statement?.resultedValues?.get(0))
+
         return statement?.resultedValues?.get(0).touser()
     }
 
@@ -33,6 +34,28 @@ class AuthServiceImpl : AuthService {
         val hashedpassword= hash(password)
         val useRow= dbQuery { UserTable.select { UserTable.email eq email and (UserTable.password eq hashedpassword)}.firstOrNull()  }
        return useRow.touser()
+    }
+
+    override suspend fun Loginsuperuser(email: String, password: String): Users? {
+        val hashedpassword= hash(password)
+        val useRow= dbQuery { UserTable.select { UserTable.email eq email and (UserTable.password eq hashedpassword) and UserTable.is_superuser }.firstOrNull()  }
+        return useRow.touser()
+    }
+
+    override suspend fun Createsuperusr(parameters: CreateSuperUserParams): Users? {
+        var statement:InsertStatement<Number>?=null
+        dbQuery{
+            statement=UserTable.insert {
+                it[username]=parameters.username!!
+                it[email]=parameters.email
+                it[phone]=parameters.phone!!
+                it[city]=parameters.city!!
+                it[password]=hash(parameters.password)
+                it[is_superuser]=parameters.is_superuser.or(true)
+            }
+        }
+        // return RowToUser(statement?.resultedValues?.get(0))
+        return statement?.resultedValues?.get(0).touser()
     }
 
     override suspend fun findUserByEmail(email: String): Users? {
