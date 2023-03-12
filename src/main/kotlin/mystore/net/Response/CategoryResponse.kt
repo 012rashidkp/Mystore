@@ -18,25 +18,19 @@ sealed class CategoryResponse<T>(
     data class SuccessResponse<T>(
         val error:Boolean=false,
         val message:String?,
-        val data: T?=null,
-        @JsonIgnore
-        override val statuscode: String="${HttpStatusCode.OK.value}",
-        @JsonIgnore
-        override val status_description: String= HttpStatusCode.OK.description,
-        @JsonIgnore
-        override val current_time: String?="${LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss a"))}"
 
+        override val statuscode: String="${HttpStatusCode.OK.value}",
+        override val status_description: String= HttpStatusCode.OK.description,
+        override val current_time: String?= LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss a")),
+        val categories: T?=null
     ):CategoryResponse<T>(statuscode,status_description,current_time)
+    @JsonSerialize
     data class ErrorResponse<T>(
         val error: Boolean=true,
         val message: String?=null,
-
-        @JsonIgnore
         override val statuscode: String="${HttpStatusCode.OK.value}",
-        @JsonIgnore
         override val status_description: String=HttpStatusCode.OK.description,
-        @JsonIgnore
-        override val current_time: String?="${LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss a"))}"
+        override val current_time: String?= LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss a"))
 
     ):CategoryResponse<T>(statuscode,status_description,current_time)
 

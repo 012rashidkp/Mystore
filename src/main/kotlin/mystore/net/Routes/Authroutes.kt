@@ -53,9 +53,6 @@ val userparams=call.receiveParameters()
   call.respond(loginresult)
 
 
-//                val params = call.receive<UserLoginParams>()
-//                val result = repository.Loginuser(params)
-//                call.respond(result)
             }
             post("/loginsuperuser"){
                 val userparams=call.receiveParameters()

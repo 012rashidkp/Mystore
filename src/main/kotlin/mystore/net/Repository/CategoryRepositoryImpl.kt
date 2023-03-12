@@ -1,9 +1,9 @@
 package mystore.net.Repository
 
 import mystore.net.Requests.CreateCategoryparams
-import mystore.net.Response.AuthResponse
+
 import mystore.net.Response.CategoryResponse
-import mystore.net.Security.JwtConfig
+
 import mystore.net.Service.CategoryService
 
 class CategoryRepositoryImpl(private val categoryService: CategoryService) : CategoryRepository {
@@ -25,6 +25,18 @@ class CategoryRepositoryImpl(private val categoryService: CategoryService) : Cat
 
     }
 
+    override suspend fun getAllcategories(): CategoryResponse<Any> {
+        val categoryList = categoryService.getAllcategories()
+         return if (categoryList!!.isEmpty()){
+             CategoryResponse.ErrorResponse(error = true, message = "No categories found")
+         }
+        else{
+            CategoryResponse.SuccessResponse(error = false, message = "categories fetched", categories = categoryList)
+        }
+
+
+
+    }
 
 
     private suspend fun iscategoryExist(catName: String):Boolean{

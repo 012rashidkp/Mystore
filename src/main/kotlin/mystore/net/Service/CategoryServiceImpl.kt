@@ -4,12 +4,12 @@ import mystore.net.Database.*
 import mystore.net.Database.DatabaseFactory.dbQuery
 import mystore.net.Model.Categories
 import mystore.net.Requests.CreateCategoryparams
-import mystore.net.Security.hash
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.statements.InsertStatement
-import java.sql.Blob
+
 
 class CategoryServiceImpl : CategoryService {
     override suspend fun Createcategory(params: CreateCategoryparams): Categories? {
@@ -31,5 +31,11 @@ class CategoryServiceImpl : CategoryService {
                 .map { it.tocategory() }.singleOrNull()
         }
         return category
+    }
+
+    override suspend fun getAllcategories(): List<Categories?> {
+        return dbQuery {
+            CategoryTable.selectAll().map { it.tocategory() }
+        }
     }
 }
