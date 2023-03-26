@@ -1,6 +1,7 @@
 package mystore.net.Repository
 
 import mystore.net.Requests.CreateCategoryparams
+import mystore.net.Requests.UpdateCategoryParams
 
 import mystore.net.Response.CategoryResponse
 
@@ -15,7 +16,8 @@ class CategoryRepositoryImpl(private val categoryService: CategoryService) : Cat
             val category=categoryService.Createcategory(params)
             if (category !=null){
 
-                CategoryResponse.SuccessResponse(error = false, message = "Category created succes")
+                CategoryResponse.SuccessResponse(error = false, message = "Category created success")
+
             }
             else{
                 CategoryResponse.ErrorResponse(error = true, message = "something went wrong")
@@ -38,10 +40,49 @@ class CategoryRepositoryImpl(private val categoryService: CategoryService) : Cat
 
     }
 
+    override suspend fun deletecategory(category_id: Int): CategoryResponse<Any> {
+      return if (!iscategoryidExist(category_id)){
+          CategoryResponse.ErrorResponse(error = true, message = "categoryid ${category_id} doesnot exist")
+
+      }
+      else{
+          val categoryid=categoryService.deletecategory(category_id)
+          if (categoryid!=null){
+              CategoryResponse.SuccessResponse(error = false, message = "Category deleted success")
+
+          }
+          else{
+              CategoryResponse.ErrorResponse(error = true, message = "seomething went wrong")
+
+          }
+      }
+    }
+
+    override suspend fun updatecategory(params: UpdateCategoryParams): CategoryResponse<Any> {
+        return if (!iscategoryidExist(params.category_id)){
+            CategoryResponse.ErrorResponse(error = true, message = "categoryid ${params.category_id} doesnot exist")
+
+        }
+        else{
+            val category=categoryService.UpdateCategory(params)
+            if (category !=null){
+
+                CategoryResponse.SuccessResponse(error = false, message = "Category updated success")
+
+            }
+            else{
+                CategoryResponse.ErrorResponse(error = true, message = "something went wrong")
+            }
+        }
+    }
+
 
     private suspend fun iscategoryExist(catName: String):Boolean{
 
         return categoryService.findcategoryByName(catName)!=null
+    }
+    private suspend fun iscategoryidExist(category_id: Int):Boolean{
+        return categoryService.findCategoryId(category_id)!=null
     }
 
 }

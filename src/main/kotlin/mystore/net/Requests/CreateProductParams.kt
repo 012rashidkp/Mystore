@@ -1,15 +1,12 @@
-package mystore.net.Model
+package mystore.net.Requests
 
-
-
-data class Products(
-    val product_id:Int,
+data class CreateProductParams(
     val product_Name:String,
     val product_desc:String,
     val category_id:Int,
-    val categories: Categories?=null,
     val marked_price:Double,
     val selling_price:Double,
     val product_image:String,
-    val created_at:String
+
+
 )
