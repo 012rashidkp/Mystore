@@ -1,140 +1,180 @@
 package mystore.net.Routes
 
+import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.http.content.*
 import io.ktor.server.plugins.*
+import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mystore.net.Constants.*
 import mystore.net.Repository.CategoryRepository
 import mystore.net.Requests.CreateCategoryparams
 import mystore.net.Requests.UpdateCategoryParams
+import org.jetbrains.exposed.sql.statements.api.ExposedBlob
 
 import java.io.File
+import java.io.FileOutputStream
+import java.nio.file.Files
+import kotlin.reflect.jvm.reflect
 
 
 fun Application.categoryroute(repository: CategoryRepository) {
-    val uploadDir = File("uploads") // specify the directory where uploaded files will be saved
-    uploadDir.mkdirs()
+
+
     routing {
-        route("/category") {
+authenticate {
+    route("/category") {
 
-            post("/createcategory") {
-                val multipart = call.receiveMultipart()
+        post("/createcategory"){
+            val multipart = call.receiveMultipart()
+            var categoryName: String? = null
+            var imageUrl: String? = null
+            var fileName: String? = null
+            multipart.forEachPart {partData ->
+                when(partData){
 
-                var categoryName = ""
-                var categoryImage: String? = null
-
-                multipart.forEachPart { part ->
-                    // if part is a file (could be form item)
-                    if (part is PartData.FileItem && part.name == "categoryImage") {
-                        // get the original filename and extension
-                        val name = part.originalFileName!!
-
-                        val file = File(uploadDir, name)
-
-                        // check if the file already exists
-                        if (file.exists()) {
-                            file.delete() // delete the existing file
+                    is PartData.FormItem ->{
+                        if (partData.name== CategoryName){
+                            categoryName=partData.value
                         }
-
-                        // use InputStream from part to save file
-                        part.streamProvider().use { its ->
-                            // copy the stream to the file with buffering
-                            file.outputStream().buffered().use {
-                                // note that this is blocking
-                                its.copyTo(it)
-                            }
-                        }
-
-                        // set the category image file path
-                        categoryImage = "/uploads/" + file.name
-                    } else if (part is PartData.FormItem && part.name == "categoryName") {
-                        categoryName = part.value
                     }
-
-                    // make sure to dispose of the part after use to prevent leaks
-                    part.dispose()
-                }
-
-                // create the category entity
-                val category = CreateCategoryparams(categoryName, categoryImage!!)
-                val createResult = repository.Createcategory(category)
-
-                // return a response with just the image filename
-                call.respond(createResult)
-            }
-
-            get("/getcategories"){
-                val getAllcategories=repository.getAllcategories()
-                val baseUrl = "${call.request.origin.scheme}://${call.request.origin.host}:${call.request.origin.port}"
-                 System.out.println("mybaseurl.. $baseUrl")
+                    is PartData.FileItem -> {
+                        if (partData.name== CategoryImage){
+                            fileName = partData.save(CATEGORY_IMAGE_PATH)
+                            imageUrl = "${EXTERNAL_CATEGORY_IMAGE_PATH}/$fileName"
 
 
-                call.respond(getAllcategories)
-            }
-            post("/deletecategory"){
-                val category_id=call.parameters["category_id"]?.toInt()
-                val deletecategory=repository.deletecategory(category_id!!)
-                call.respond(deletecategory)
-
-            }
-            post("/updatecategory") {
-                val multipart = call.receiveMultipart()
-
-                var category_id = 0
-                var categoryName = ""
-                var categoryImage: String? = null
-
-                multipart.forEachPart { part ->
-                    // if part is a file (could be form item)
-                    if (part is PartData.FileItem && part.name == "categoryImage") {
-                        // get the original filename and extension
-                        val name = part.originalFileName!!
-                    
-                        val file = File(uploadDir, name)
-
-                        // check if the file already exists
-                        if (file.exists()) {
-                            file.delete() // delete the existing file
                         }
-
-                        // use InputStream from part to save file
-                        part.streamProvider().use { its ->
-                            // copy the stream to the file with buffering
-                            file.outputStream().buffered().use {
-                                // note that this is blocking
-                                its.copyTo(it)
-                            }
-                        }
-
-                        // set the category image file path
-                        categoryImage = "/uploads/" + file.name
-                    } else if (part is PartData.FormItem && part.name == "categoryName") {
-                        categoryName = part.value
-                    } else if (part is PartData.FormItem && part.name == "category_id") {
-                        category_id = part.value.toInt()
                     }
-
-                    // make sure to dispose of the part after use to prevent leaks
-                    part.dispose()
+                    is PartData.BinaryChannelItem ->{}
+                    is PartData.BinaryItem ->{}
                 }
+                partData.dispose()
 
-                // update the category entity
-                val category = UpdateCategoryParams(category_id, categoryName, categoryImage!!)
-                val updateResult = repository.updatecategory(category)
 
-                // return a response with just the image filename
-                call.respond(updateResult)
+
             }
-
-
-
+            val category = CreateCategoryparams(categoryName?:"", imageUrl)
+            val createResult = repository.Createcategory(category)
+            call.respond(createResult)
 
 
 
 
 
         }
+
+
+
+
+
+
+
+
+
+
+
+
+        get("/getcategories"){
+
+            val getAllcategories=repository.getAllcategories()
+
+            call.respond(getAllcategories)
+        }
+        post("/deletecategory"){
+            val category_id=call.parameters["category_id"]?.toInt()
+            val deletecategory=repository.deletecategory(category_id?:0)
+            call.respond(deletecategory)
+
+        }
+
+
+        post("/updatecategory") {
+            val multipart = call.receiveMultipart()
+
+            var category_id = 0
+            var categoryName = ""
+            lateinit var imageFile: File
+
+            multipart.forEachPart { part ->
+                when (part) {
+                    is PartData.FileItem -> {
+                        val name = part.originalFileName ?: "unknown"
+                        imageFile = File("upload/image/$name") // Save to upload/image directory
+                        if (imageFile.exists()) {
+                            imageFile.delete()
+                        }
+                        part.streamProvider().use { input ->
+                            imageFile.outputStream().buffered().use { output ->
+                                input.copyTo(output)
+                            }
+                        }
+                    }
+                    is PartData.FormItem -> {
+                        if (part.name == "categoryName") {
+                            categoryName = part.value
+                        }
+                        else if (part.name=="category_id"){
+                            category_id=part.value.toInt()
+
+                        }
+                    }
+
+                    is PartData.BinaryChannelItem -> {
+                        // Handle binary channel items if needed
+                    }
+
+                    is PartData.BinaryItem -> {
+                        // Handle binary items if needed
+                    }
+                }
+
+                part.dispose()
+            }
+
+
+
+            val imageFilePath = "upload/categories/${imageFile.name}" // Store the image path
+
+            // update the category entity
+            val category = UpdateCategoryParams(category_id, categoryName, imageFilePath)
+            val updateResult = repository.updatecategory(category)
+
+            // return a response with just the image filename
+            call.respond(updateResult)
+        }
+
+
+
+
+
+
+
+
     }
 }
+
+
+
+
+        static("/"){
+        staticRootFolder=File(STATIC_ROOT)
+        static(EXTERNAL_CATEGORY_IMAGE_PATH){
+
+            files(CATEGORY_IMAGE_DIRECTORY)
+
+
+        }
+
+
+        }
+
+
+
+    }
+}
+

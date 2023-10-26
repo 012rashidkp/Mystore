@@ -1,5 +1,7 @@
 package mystore.net.Requests
 
+import org.jetbrains.exposed.sql.statements.api.ExposedBlob
+
 data class CreateProductParams(
     val product_Name:String,
     val product_desc:String,

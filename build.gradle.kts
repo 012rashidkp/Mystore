@@ -41,7 +41,8 @@ dependencies {
     implementation("org.postgresql:postgresql:42.3.3")
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation ("org.mindrot:jbcrypt:0.4")
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.0")
+  //  implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
+
 
 
 

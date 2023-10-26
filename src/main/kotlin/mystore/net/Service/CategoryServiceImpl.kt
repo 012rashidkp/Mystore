@@ -17,7 +17,7 @@ class CategoryServiceImpl : CategoryService {
         dbQuery {
             statement = CategoryTable.insert {
                 it[categoryName] = params.categoryName
-                it[category_image]=params.categoryImage
+                it[category_image]=params.categoryImage?:""
 
             }
         }
@@ -49,7 +49,7 @@ class CategoryServiceImpl : CategoryService {
 
     override suspend fun deletecategory(category_id: Int): Boolean? {
         return dbQuery {
-            CategoryTable.deleteWhere { CategoryTable.category_id eq category_id } > 0
+            CategoryTable.deleteWhere { CategoryTable.category_id eq  category_id } > 0
         }
     }
 
@@ -58,7 +58,7 @@ class CategoryServiceImpl : CategoryService {
         dbQuery {
             result = CategoryTable.update({ CategoryTable.category_id eq params.category_id }) {
                 it[categoryName] = params.categoryName
-                it[category_image] = params.categoryImage
+                it[category_image] = params.categoryImage?:""
 
             }
         }

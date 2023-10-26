@@ -1,3 +1,4 @@
 package mystore.net.Constants
 
-val BASE_URL="192.168.166.131"
+val CategoryName="categoryName"
+val CategoryImage="category_image"

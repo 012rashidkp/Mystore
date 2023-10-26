@@ -1,5 +1,9 @@
 package mystore.net.Repository
 
+import mystore.net.Constants.BASE_URL
+import mystore.net.Constants.PATHURLCONFIG
+import mystore.net.Constants.PORT
+import mystore.net.Model.Categories
 import mystore.net.Requests.CreateCategoryparams
 import mystore.net.Requests.UpdateCategoryParams
 
@@ -16,7 +20,7 @@ class CategoryRepositoryImpl(private val categoryService: CategoryService) : Cat
             val category=categoryService.Createcategory(params)
             if (category !=null){
 
-                CategoryResponse.SuccessResponse(error = false, message = "Category created success")
+                CategoryResponse.SuccessResponse(error = false, message = "${params.categoryName} Category created success")
 
             }
             else{
@@ -28,12 +32,22 @@ class CategoryRepositoryImpl(private val categoryService: CategoryService) : Cat
     }
 
     override suspend fun getAllcategories(): CategoryResponse<Any> {
+        val catitems= mutableListOf<Categories>()
+        catitems.clear()
         val categoryList = categoryService.getAllcategories()
          return if (categoryList!!.isEmpty()){
+
              CategoryResponse.ErrorResponse(error = true, message = "No categories found")
          }
         else{
-            CategoryResponse.SuccessResponse(error = false, message = "categories fetched", categories = categoryList)
+           for (i in 0 until categoryList.size){
+               catitems.add(Categories(categoryList.get(i)?.category_id?:0,categoryList.get(i)?.categoryName?:"","${PATHURLCONFIG}${categoryList.get(i)?.category_image}",categoryList.get(i)?.created_at?:""))
+           }
+
+
+            CategoryResponse.SuccessResponse(error = false, message = "categories fetched", categories = catitems)
+
+
         }
 
 

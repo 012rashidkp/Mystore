@@ -18,7 +18,7 @@ sealed class AuthResponse<T>(
     data class SuccessResponse<T>(
         val error:Boolean=false,
         val message:String?,
-        val userid:String?,
+        val userid:Int?,
         val username:String,
         val email:String,
         val phone:String,
@@ -27,24 +27,17 @@ sealed class AuthResponse<T>(
         val is_superuser:Boolean,
         var authtoken:String?,
 
-        @JsonIgnore
+
         override val statuscode: String="${HttpStatusCode.OK.value}",
-        @JsonIgnore
         override val status_description: String=HttpStatusCode.OK.description,
-        @JsonIgnore
-        override val current_time: String?="${LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss a"))}"
-
-
+        override val current_time: String?=LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss a"))
             ): AuthResponse<T>(statuscode,status_description,current_time)
     data class ErrorResponse<T>(
         val error: Boolean=true,
         val message: String?=null,
         val exception:T?=null,
-        @JsonIgnore
         override val statuscode: String="${HttpStatusCode.OK.value}",
-        @JsonIgnore
         override val status_description: String=HttpStatusCode.OK.description,
-        @JsonIgnore
         override val current_time: String?="${LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm:ss a"))}"
 
     ): AuthResponse<T>(statuscode,status_description,current_time)

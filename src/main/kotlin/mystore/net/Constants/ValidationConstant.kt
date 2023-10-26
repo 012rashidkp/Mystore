@@ -1,8 +1,5 @@
 package mystore.net.Constants
 
-import org.jetbrains.exposed.sql.statements.api.ExposedBlob
-import java.io.ByteArrayOutputStream
-import java.io.File
 import java.util.regex.Pattern
 
 fun isEmailValid(email: String): Boolean {
