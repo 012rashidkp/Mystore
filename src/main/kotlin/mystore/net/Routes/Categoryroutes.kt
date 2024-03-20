@@ -62,20 +62,7 @@ authenticate {
             val createResult = repository.Createcategory(category)
             call.respond(createResult)
 
-
-
-
-
         }
-
-
-
-
-
-
-
-
-
 
 
 
@@ -85,6 +72,46 @@ authenticate {
 
             call.respond(getAllcategories)
         }
+
+
+        post("/updatecategory"){
+            val multipart = call.receiveMultipart()
+            var categoryName: String? = null
+            var category_id:Int?=null
+            var imageUrl: String? = null
+            var fileName: String? = null
+            multipart.forEachPart {partData ->
+                when(partData){
+
+                    is PartData.FormItem ->{
+                        if (partData.name== CategoryName){
+                            categoryName=partData.value
+                        }
+                        if (partData.name== Category_id){
+                            category_id=partData.value.toInt()
+                        }
+                    }
+                    is PartData.FileItem -> {
+                        if (partData.name== CategoryImage){
+                            fileName = partData.save(CATEGORY_IMAGE_PATH)
+                            imageUrl = "${EXTERNAL_CATEGORY_IMAGE_PATH}/$fileName"
+
+
+                        }
+                    }
+                    is PartData.BinaryChannelItem ->{}
+                    is PartData.BinaryItem ->{}
+                }
+                partData.dispose()
+
+
+
+            }
+            val updatecategory = UpdateCategoryParams(category_id?:0,categoryName?:"", imageUrl)
+            val updateresult = repository.updatecategory(updatecategory)
+            call.respond(updateresult)
+
+        }
         post("/deletecategory"){
             val category_id=call.parameters["category_id"]?.toInt()
             val deletecategory=repository.deletecategory(category_id?:0)
@@ -93,60 +120,7 @@ authenticate {
         }
 
 
-        post("/updatecategory") {
-            val multipart = call.receiveMultipart()
 
-            var category_id = 0
-            var categoryName = ""
-            lateinit var imageFile: File
-
-            multipart.forEachPart { part ->
-                when (part) {
-                    is PartData.FileItem -> {
-                        val name = part.originalFileName ?: "unknown"
-                        imageFile = File("upload/image/$name") // Save to upload/image directory
-                        if (imageFile.exists()) {
-                            imageFile.delete()
-                        }
-                        part.streamProvider().use { input ->
-                            imageFile.outputStream().buffered().use { output ->
-                                input.copyTo(output)
-                            }
-                        }
-                    }
-                    is PartData.FormItem -> {
-                        if (part.name == "categoryName") {
-                            categoryName = part.value
-                        }
-                        else if (part.name=="category_id"){
-                            category_id=part.value.toInt()
-
-                        }
-                    }
-
-                    is PartData.BinaryChannelItem -> {
-                        // Handle binary channel items if needed
-                    }
-
-                    is PartData.BinaryItem -> {
-                        // Handle binary items if needed
-                    }
-                }
-
-                part.dispose()
-            }
-
-
-
-            val imageFilePath = "upload/categories/${imageFile.name}" // Store the image path
-
-            // update the category entity
-            val category = UpdateCategoryParams(category_id, categoryName, imageFilePath)
-            val updateResult = repository.updatecategory(category)
-
-            // return a response with just the image filename
-            call.respond(updateResult)
-        }
 
 
 
@@ -164,13 +138,9 @@ authenticate {
         static("/"){
         staticRootFolder=File(STATIC_ROOT)
         static(EXTERNAL_CATEGORY_IMAGE_PATH){
-
             files(CATEGORY_IMAGE_DIRECTORY)
 
-
-        }
-
-
+           }
         }
 
 

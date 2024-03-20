@@ -8,7 +8,7 @@ import mystore.net.Response.CategoryResponse
 interface CategoryRepository {
     suspend fun Createcategory(params:CreateCategoryparams): CategoryResponse<Any>
 
-    suspend fun getAllcategories():CategoryResponse<Any>
+    suspend fun  getAllcategories():CategoryResponse<Any>
 
     suspend fun deletecategory(category_id:Int):CategoryResponse<Any>
 

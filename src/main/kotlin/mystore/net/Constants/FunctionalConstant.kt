@@ -2,6 +2,8 @@ package mystore.net.Constants
 
 import io.ktor.http.content.*
 import java.io.File
+import java.net.Inet4Address
+import java.net.NetworkInterface
 import java.util.*
 
 fun PartData.FileItem.save(path: String): String {
@@ -22,4 +24,21 @@ fun PartData.FileItem.save(path: String): String {
     // write bytes to our newly created file
     File("$path$fileName").writeBytes(fileBytes)
     return fileName
+}
+
+
+fun getLocalIPv4Address(): String? {
+    try {
+        for (intf in NetworkInterface.getNetworkInterfaces()) {
+            for (address in intf.inetAddresses) {
+                if (address is Inet4Address && !address.isLoopbackAddress) {
+                    return address.hostAddress
+                }
+            }
+        }
+    } catch (ex: Exception) {
+        println("Error getting IP address: $ex")
+    }
+
+    return null  // If no suitable IPv4 address is found
 }

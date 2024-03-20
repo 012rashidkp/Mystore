@@ -10,13 +10,18 @@ import mystore.net.Response.AuthResponse
 
 
 fun Application.configureStatusPages() {
+
     install(StatusPages) {
         exception<MismatchedInputException> { call, cause ->
             if(cause is MissingKotlinParameterException) {
                 val error = when (cause) {
-                    is MissingKotlinParameterException -> AuthResponse.ErrorResponse(error = true, message = "Missing attribute `${cause.parameter.name}`",exception = null)
-                    else -> AuthResponse.ErrorResponse(error = true,message = cause.message)
+                    else -> AuthResponse.ErrorResponse(
+                        error = true,
+                        message = "Missing attribute `${cause.parameter.name}`",
+                        exception = null
+                    )
                 }
+
                 call.respond(error.statuscode)
 
             }
