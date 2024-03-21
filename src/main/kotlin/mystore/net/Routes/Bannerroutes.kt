@@ -143,7 +143,7 @@ fun Application.bannerroute(repository: BannerRepository){
         static("/"){
             staticRootFolder= File(STATIC_ROOT)
             static(EXTERNAL_BANNER_IMAGE_PATH){
-                files(BANNER_IMAGE_PATH)
+                files(BANNER_IMAGE_DIRECTORY)
 
             }
         }

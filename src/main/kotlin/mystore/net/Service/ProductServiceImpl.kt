@@ -1,16 +1,14 @@
 package mystore.net.Service
 
-import mystore.net.Database.CategoryTable
+import mystore.net.Database.*
 import mystore.net.Database.DatabaseFactory.dbQuery
-import mystore.net.Database.ProductTable
-import mystore.net.Database.tocategory
-import mystore.net.Database.toproduct
 import mystore.net.Model.Categories
 import mystore.net.Model.Products
 import mystore.net.Requests.CreateProductParams
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.statements.InsertStatement
 
 class ProductServiceImpl : ProductService {
@@ -28,6 +26,14 @@ class ProductServiceImpl : ProductService {
             }
         }
         return statement?.resultedValues?.get(0).toproduct()
+    }
+
+    override suspend fun getAllproducts(): List<Products?>? {
+        return dbQuery {
+            (ProductTable innerJoin CategoryTable)
+                .selectAll()
+                .map { it.toproductJoinwithCategory() }
+        }
     }
 
     override suspend fun getproductName(productName: String): Products? {

@@ -42,3 +42,29 @@ fun getLocalIPv4Address(): String? {
 
     return null  // If no suitable IPv4 address is found
 }
+
+fun PartData.FileItem.save(path: String, desiredFileName: String): String {
+    // read the file bytes
+    val fileBytes = streamProvider().readBytes()
+    // find the file extension eg: .jpg
+    val fileExtension = originalFileName?.takeLastWhile { it != '.' }
+    // create our new file in the server
+    val folder = File(path)
+    // create parent directory if not exists
+    if (!folder.parentFile.exists()) {
+        folder.parentFile.mkdirs()
+    }
+    // continue with creating our new file
+    folder.mkdir()
+
+    // Check if the file already exists with desiredFileName
+    val fileToSave = File("$path$desiredFileName.$fileExtension")
+    if (fileToSave.exists()) {
+        // Delete the existing file
+        fileToSave.delete()
+    }
+
+    // write bytes to our newly created file
+    fileToSave.writeBytes(fileBytes)
+    return "$desiredFileName.$fileExtension"
+}

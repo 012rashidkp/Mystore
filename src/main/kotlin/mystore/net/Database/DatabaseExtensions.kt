@@ -60,12 +60,7 @@ fun ResultRow?.toproductJoinwithCategory():Products?{
         product_Name = this[ProductTable.product_Name],
         product_desc = this[ProductTable.product_desc],
         category_id = this[ProductTable.category_id],
-        categories = Categories(
-            category_id = this[CategoryTable.category_id],
-            categoryName = this[CategoryTable.categoryName],
-            category_image = this[CategoryTable.category_image],
-            created_at = this[CategoryTable.created_at].toString()
-        ),
+        categoryName = this[CategoryTable.categoryName],
         marked_price = this[ProductTable.marked_price],
         selling_price = this[ProductTable.selling_price],
         product_image = this[ProductTable.product_image],

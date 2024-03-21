@@ -2,9 +2,12 @@ package mystore.net.Routes
 
 import io.ktor.http.content.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import mystore.net.Constants.*
 import mystore.net.Repository.ProductRepository
 import mystore.net.Requests.CreateProductParams
 import org.jetbrains.exposed.sql.statements.api.ExposedBlob
@@ -13,79 +16,95 @@ import java.io.File
 fun Application.productroute(repository: ProductRepository){
 
     routing {
-        route("/product"){
-            post("/createproduct"){
-                val multipart = call.receiveMultipart()
+       authenticate {
+           route("/product"){
+               post("/createproduct"){
+                   val multipart = call.receiveMultipart()
+                   var productname:String?=null
+                   var product_desc:String?=null
+                   var category_id:Int?=null
+                   var marked_price:Double?=null
+                   var selling_price:Double?=null
+                   var imageurl:String?=null
+                   var fileName: String? = null
+                   multipart.forEachPart {partData ->
+                       when(partData){
+                           is PartData.FormItem -> {
+                               if (partData.name == productName_params){
+                                   productname=partData.value
+                               }
+                               if (partData.name == productdesc_params){
+                                   product_desc=partData.value
+                               }
+                               if (partData.name == categoryid_params){
+                                   category_id=partData.value.toInt()
+                               }
+                               if (partData.name == markedprice_params){
+                                   marked_price=partData.value.toDouble()
+                               }
+                               if (partData.name == sellingprice_params){
+                                   selling_price=partData.value.toDouble()
+                               }
+                           }
+                           is PartData.FileItem ->{
+                             if (partData.name == productimage_params){
+                                 fileName = partData.save(PRODUCT_IMAGE_PATH)
 
-                var product_Name = ""
-                var product_desc=""
-                var category_id=0
-                var marked_price=0.0
-                var selling_price=0.0
-                var imageFileName = ""
-                multipart.forEachPart { part ->
-                    when(part){
-                        is PartData.FileItem ->{
-                            if (part.name == "product_image"){
-                                val extension = File(part.originalFileName).extension
-                                imageFileName = "product_${System.currentTimeMillis()}.$extension"
-                                val uploadDir = File("/upload/product")
-                                uploadDir.mkdirs()
+                                 imageurl="$EXTERNAL_PRODUCT_IMAGE_PATH/$fileName"
+                             }
 
-                                val file = File(uploadDir, imageFileName)
-//                            if (file.exists()) {
-//                                file.delete() // delete the existing file
-//                            }
 
-                                part.streamProvider().use { input ->
-                                    file.outputStream().buffered().use { output ->
-                                        input.copyTo(output)
-                                    }
-                                }
 
-                            }
 
-                        }
-                        is PartData.FormItem -> {
-                            if (part.name == "product_Name"){
-                                product_Name=part.value
-                            }
-                            else if (part.name == "product_desc"){
-                                product_desc=part.value
-                            }
-                            else if (part.name == "category_id"){
-                                category_id=part.value.toInt()
-                            }
-                            else if (part.name == "marked_price"){
-                                marked_price=part.value.toDouble()
-                            }
-                            else if (part.name == "selling_price"){
-                                selling_price=part.value.toDouble()
-                            }
+                           }
+                           is PartData.BinaryChannelItem -> {}
+                           is PartData.BinaryItem -> {}
+                       }
+                       partData.dispose()
 
-                        }
-                        is PartData.BinaryChannelItem -> {
 
-                        }
-                        is PartData.BinaryItem -> {
-
-                        }
-                    }
-                    part.dispose()
-
-                }
+                   }
+                   val productinput=CreateProductParams(
+                       product_Name = productname?:"",
+                       product_desc = product_desc?:"",
+                       category_id = category_id?:0,
+                       marked_price = marked_price?:0.0,
+                       selling_price = selling_price?:0.0,
+                       product_image = imageurl?:""
+                   )
+                   val createresult=repository.Createproduct(productinput)
+                   call.respond(createresult)
 
 
 
 
 
 
-                val imagePath = "/upload/product/$imageFileName"
 
-                val product=CreateProductParams(product_Name,product_desc,category_id,marked_price,selling_price,imagePath)
-                val productcreateresult=repository.Createproduct(product)
-                call.respond(productcreateresult)
+
+               }
+
+               get("/getproducts"){
+                   val getAllproducts=repository.getAllproducts()
+                   call.respond(getAllproducts)
+               }
+
+
+           }
+
+       }
+
+
+
+
+        static("/"){
+            staticRootFolder= File(STATIC_ROOT)
+            static(EXTERNAL_PRODUCT_IMAGE_PATH){
+                files(PRODUCT_IMAGE_DIRECTORY)
+
             }
         }
+
+
     }
 }
