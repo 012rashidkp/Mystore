@@ -1,3 +1,4 @@
+
 val ktor_version: String by project
 val kotlin_version: String by project
 val logback_version: String by project
@@ -19,6 +20,7 @@ application {
 repositories {
     mavenCentral()
 }
+
 
 dependencies {
     implementation("io.ktor:ktor-server-core:$ktor_version")
@@ -44,7 +46,5 @@ dependencies {
     implementation("io.ktor:ktor-server-request-validation:$ktor_version")
    // implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
 
-
-
-
 }
+
