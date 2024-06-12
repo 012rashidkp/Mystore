@@ -12,21 +12,23 @@ object DatabaseFactory {
 
     fun init(){
         Database.connect(hikari())
-       transaction {
-           SchemaUtils.create(UserTable)
-           SchemaUtils.create(BannerTable)
-           SchemaUtils.create(CategoryTable)
-           SchemaUtils.create(ProductTable)
+        transaction {
+            SchemaUtils.create(UserTable)
+            SchemaUtils.create(BannerTable)
+            SchemaUtils.create(CategoryTable)
+            SchemaUtils.create(ProductTable)
 
-       }
+        }
     }
     fun hikari():HikariDataSource{
         val config=HikariConfig()
         config.driverClassName="org.postgresql.Driver"
-        config.jdbcUrl="jdbc:postgresql:Mystore?user=postgres&password=admin123"
+        config.jdbcUrl="jdbc:postgresql://localhost:5432/Mystore"
         config.maximumPoolSize = 3
+        config.username="postgres"
+        config.password="admin123"
         config.isAutoCommit = false
-        config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
+        //   config.transactionIsolation = "TRANSACTION_REPEATABLE_READ"
         config.validate()
         return HikariDataSource(config)
     }

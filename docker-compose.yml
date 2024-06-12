@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  db:
+    image: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: Mystore
+    ports:
+      - "5432:5432"
+  app:
+    image: postgres:latest
+    environment:
+      DATABASE_URL: "jdbc:postgresql://db:5432/Mystore"
+      DATABASE_USER: "postgres"
+      DATABASE_PASSWORD: "admin123"
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
